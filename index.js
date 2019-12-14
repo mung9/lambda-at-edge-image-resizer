@@ -15,19 +15,17 @@ exports.handler = async (event, context, callback) => {
     return response;
   }
 
-  const params = {
-    Bucket: bucket,
-    Key: decodeURIComponent(request.uri).substring(1)
-  };
-
   const resizingOptions = resolveResizingOptions(event);
 
   try {
-    const obj = await s3.getObject(params).promise();
+    const obj = await s3.getObject({
+      Bucket: bucket,
+      Key: decodeURIComponent(request.uri).substring(1)
+    }).promise();
     response.body = (await sharp(obj.Body).resize(resizingOptions).toBuffer()).toString('base64');
   } catch (err) {
     console.log(err);
-    return err;
+    return response;
   }
 
   response.status = 200;
